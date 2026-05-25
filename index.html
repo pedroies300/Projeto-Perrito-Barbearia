@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perrito Barbearia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #0d0c0a;
+      --cream: #f5f0e8;
+      --gold: #c9a84c;
+      --gold-light: #e8c96e;
+      --dark-brown: #1a1510;
+      --mid-brown: #2e2318;
+      --text-muted: #8a7d6b;
+      --white: #ffffff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 3rem;
+      background: linear-gradient(to bottom, rgba(13,12,10,0.95), transparent);
+      transition: background 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(13,12,10,0.97);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.9rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--cream); }
+    .nav-links {
+      display: flex;
+      gap: 2.4rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      transition: opacity 0.25s, color 0.25s;
+    }
+    .nav-links a:hover { opacity: 1; color: var(--gold); }
+    .nav-ig {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      opacity: 0.85;
+      transition: opacity 0.25s;
+    }
+    .nav-ig:hover { opacity: 1; }
+
+    /* ─── HERO ─── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--dark-brown);
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 50%, rgba(201,168,76,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 80% at 10% 80%, rgba(201,168,76,0.05) 0%, transparent 60%),
+        linear-gradient(135deg, #0d0c0a 0%, #1a1510 50%, #0d0c0a 100%);
+    }
+    .hero-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 60px,
+          rgba(201,168,76,0.025) 60px,
+          rgba(201,168,76,0.025) 61px
+        );
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      max-width: 1200px;
+      width: 90%;
+      gap: 4rem;
+    }
+    .hero-text { animation: fadeUp 1s ease both; }
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 1px;
+      background: var(--gold);
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 9vw, 8rem);
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      color: var(--cream);
+      margin-bottom: 1.6rem;
+    }
+    .hero-title .accent { color: var(--gold); }
+    .hero-subtitle {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 380px;
+      line-height: 1.7;
+      margin-bottom: 2.4rem;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: var(--gold);
+      color: var(--black);
+      padding: 1rem 2.2rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.25s, transform 0.25s;
+    }
+    .hero-cta:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .hero-img-wrap {
+      position: relative;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+    .hero-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -12px -12px 12px 12px;
+      border: 1px solid rgba(201,168,76,0.3);
+      z-index: 0;
+    }
+    .hero-img-wrap img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      display: block;
+      filter: sepia(15%) contrast(1.05);
+    }
+    .hero-badge {
+      position: absolute;
+      bottom: -20px;
+      left: -20px;
+      z-index: 3;
+      width: 100px;
+      height: 100px;
+      background: var(--gold);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      color: var(--black);
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 1.1;
+      animation: spin 20s linear infinite;
+    }
+
+    /* ─── GALLERY STRIP ─── */
+    #gallery {
+      padding: 5rem 0;
+      background: var(--dark-brown);
+      overflow: hidden;
+    }
+    .gallery-track {
+      display: flex;
+      gap: 1rem;
+      animation: slide 30s linear infinite;
+    }
+    .gallery-track img {
+      width: 165px;
+      height: 165px;
+      object-fit: cover;
+      flex-shrink: 0;
+      filter: grayscale(30%) sepia(15%);
+      transition: filter 0.3s;
+    }
+    .gallery-track img:hover { filter: none; }
+    @keyframes slide {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      padding: 2rem 0;
+      color: var(--gold);
+      font-size: 1.4rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      max-width: 200px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(201,168,76,0.4));
+    }
+    .divider::after { transform: scaleX(-1); }
+
+    /* ─── SERVICES ─── */
+    #servicos {
+      padding: 6rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .section-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      color: var(--cream);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0;
+      border: 1px solid rgba(201,168,76,0.15);
+    }
+    .service-card {
+      padding: 2.4rem 2.2rem;
+      border: 1px solid rgba(201,168,76,0.1);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: background 0.35s;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .service-card:hover { background: rgba(201,168,76,0.04); }
+    .service-card:hover::before { width: 100%; }
+    .service-icon {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    .service-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .service-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.4rem;
+    }
+    .service-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+    }
+    .service-price small {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-left: 4px;
+    }
+
+    /* ─── HOURS BAND ─── */
+    .hours-band {
+      background: var(--gold);
+      padding: 3rem 3rem;
+      display: flex;
+      justify-content: center;
+      gap: 6rem;
+      flex-wrap: wrap;
+    }
+    .hours-item { text-align: center; }
+    .hours-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(13,12,10,0.6);
+      margin-bottom: 0.4rem;
+    }
+    .hours-time {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.08em;
+      color: var(--black);
+    }
+
+    /* ─── CONTACT ─── */
+    #contato {
+      padding: 6rem 3rem;
+      background: var(--dark-brown);
+    }
+    .contact-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .contact-info h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+    }
+    .contact-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+    .contact-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .contact-detail-icon {
+      color: var(--gold);
+      font-size: 1.1rem;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .contact-detail-text {
+      font-size: 0.88rem;
+      color: var(--cream);
+      line-height: 1.6;
+    }
+    .contact-detail-text a {
+      color: var(--cream);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .contact-detail-text a:hover { color: var(--gold); }
+
+    /* Form */
+    .contact-form { display: flex; flex-direction: column; gap: 1.1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-size: 0.74rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .form-group input,
+    .form-group textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.2);
+      color: var(--cream);
+      padding: 0.9rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.05);
+    }
+    .form-group textarea { min-height: 120px; }
+    .form-submit {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: 1rem 2.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+      align-self: flex-start;
+    }
+    .form-submit:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .form-success {
+      display: none;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold);
+      padding: 1rem 1.4rem;
+      font-size: 0.88rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid rgba(201,168,76,0.12);
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+    }
+    .footer-socials { display: flex; gap: 1rem; }
+    .footer-socials a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: color 0.2s;
+    }
+    .footer-socials a:hover { color: var(--gold); }
+    .footer-copy {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ─── AGENDAMENTO ─── */
+    #agendamento {
+      padding: 6rem 3rem;
+      background: var(--black);
+    }
+    .agendamento-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .agendamento-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+    .agendamento-form .form-group.full {
+      grid-column: 1 / -1;
+    }
+    .agendamento-form select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.2);
+      color: var(--cream);
+      padding: 0.9rem 1.1rem;
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23c9a84c%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      transition: border-color 0.25s, background-color 0.25s;
+    }
+    .agendamento-form select:focus {
+      border-color: var(--gold);
+      background-color: rgba(201,168,76,0.05);
+    }
+    .agendamento-form select option {
+      background: var(--dark-brown);
+      color: var(--cream);
+    }
+    .agendamento-form input[type="date"],
+    .agendamento-form input[type="time"] {
+      color-scheme: dark;
+    }
+    .agendamento-status {
+      display: none;
+      margin-top: 0.5rem;
+      padding: 1rem 1.4rem;
+      font-size: 0.88rem;
+      letter-spacing: 0.05em;
+      grid-column: 1 / -1;
+    }
+    .agendamento-status.sucesso {
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold);
+    }
+    .agendamento-status.erro {
+      background: rgba(200,60,60,0.1);
+      border: 1px solid rgba(200,60,60,0.4);
+      color: #e07070;
+    }
+    .agendamento-status.carregando {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+    }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero-content { grid-template-columns: 1fr; text-align: center; gap: 2.5rem; }
+      .hero-img-wrap { order: -1; margin: 0 auto; }
+      .hero-eyebrow { justify-content: center; }
+      .hero-subtitle { margin: 0 auto 2rem; }
+      .hero-badge { width: 75px; height: 75px; font-size: 0.85rem; left: 10px; bottom: -10px; }
+      #servicos { padding: 4rem 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .hours-band { gap: 2rem; padding: 2.5rem 1.5rem; }
+      .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+      #contato { padding: 4rem 1.5rem; }
+      footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
+      #agendamento { padding: 4rem 1.5rem; }
+      .agendamento-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#hero">PERRITO <span>BARBEARIA</span></a>
+  <ul class="nav-links">
+    <li><a href="#hero">Início</a></li>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#agendamento">Agendar</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+  <a class="nav-ig" href="https://www.instagram.com/perritobarbearia/" target="_blank">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    @perritobarbearia
+  </a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <p class="hero-eyebrow">Est. São Paulo · SP</p>
+      <h1 class="hero-title">PERRITO<br><span class="accent">BARBE-<br>ARIA</span></h1>
+      <p class="hero-subtitle">Onde estilo encontra tradição. Cortes precisos, barba impecável — para o homem que valoriza os detalhes.</p>
+      <a class="hero-cta" href="#servicos">
+        Ver Serviços
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="hero-img-wrap">
+      <img
+        src="https://static.wixstatic.com/media/6bf46d_e78fe1835cb84a8a80fcfdb40e4becfe~mv2.png/v1/fill/w_484,h_496,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_e78fe1835cb84a8a80fcfdb40e4becfe~mv2.png"
+        alt="Perrito Barbearia"
+        onerror="this.style.display='none'"
+      />
+      <div class="hero-badge">BARBEARIA<br>★<br>SP</div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY STRIP -->
+<section id="gallery">
+  <div class="gallery-track" id="galleryTrack">
+    <img src="https://static.wixstatic.com/media/6bf46d_2a125cd79d614bcd8f350698a299b3a4~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_2a125cd79d614bcd8f350698a299b3a4~mv2.png" alt="Trabalho 1" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_629c10703266422085b9227aedd0415b~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_629c10703266422085b9227aedd0415b~mv2.png" alt="Trabalho 2" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_bf72de6ab5d14a31b29cf26a68d6cbd6~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_bf72de6ab5d14a31b29cf26a68d6cbd6~mv2.png" alt="Trabalho 3" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_8251d3d300634912bef0d970f9f31cbe~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_8251d3d300634912bef0d970f9f31cbe~mv2.png" alt="Trabalho 4" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_be789c15e4044155a413bac528dee673~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_be789c15e4044155a413bac528dee673~mv2.png" alt="Trabalho 5" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_0c67ad7239df4811892abf944d25cb31~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_0c67ad7239df4811892abf944d25cb31~mv2.png" alt="Trabalho 6" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_254e27dd696b44649b53167565428eca~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_254e27dd696b44649b53167565428eca~mv2.png" alt="Trabalho 7" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_8a2ad840f73e4ddca68e3ba6e2514d96~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_8a2ad840f73e4ddca68e3ba6e2514d96~mv2.png" alt="Trabalho 8" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_e74dac1c8e774bffa910991b0e332c1a~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_e74dac1c8e774bffa910991b0e332c1a~mv2.png" alt="Trabalho 9" onerror="this.style.display='none'"/>
+    <!-- duplicated for seamless loop -->
+    <img src="https://static.wixstatic.com/media/6bf46d_2a125cd79d614bcd8f350698a299b3a4~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_2a125cd79d614bcd8f350698a299b3a4~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_629c10703266422085b9227aedd0415b~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_629c10703266422085b9227aedd0415b~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_bf72de6ab5d14a31b29cf26a68d6cbd6~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_bf72de6ab5d14a31b29cf26a68d6cbd6~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_8251d3d300634912bef0d970f9f31cbe~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_8251d3d300634912bef0d970f9f31cbe~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_be789c15e4044155a413bac528dee673~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_be789c15e4044155a413bac528dee673~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_0c67ad7239df4811892abf944d25cb31~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_0c67ad7239df4811892abf944d25cb31~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_254e27dd696b44649b53167565428eca~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_254e27dd696b44649b53167565428eca~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_8a2ad840f73e4ddca68e3ba6e2514d96~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_8a2ad840f73e4ddca68e3ba6e2514d96~mv2.png" alt="" onerror="this.style.display='none'"/>
+    <img src="https://static.wixstatic.com/media/6bf46d_e74dac1c8e774bffa910991b0e332c1a~mv2.png/v1/fill/w_165,h_165,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6bf46d_e74dac1c8e774bffa910991b0e332c1a~mv2.png" alt="" onerror="this.style.display='none'"/>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="servicos">
+  <div class="section-header reveal">
+    <p class="section-eyebrow">O que oferecemos</p>
+    <h2 class="section-title">SERVIÇOS</h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-icon">✂️</div>
+      <h3 class="service-name">Corte de Cabelo</h3>
+      <p class="service-desc">Corte personalizado com acabamento impecável, do degradê ao social.</p>
+      <div class="service-price">R$60<small>reais</small></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">🪒</div>
+      <h3 class="service-name">Combo Cabelo + Barba</h3>
+      <p class="service-desc">O combo perfeito: corte e barba juntos por um preço especial.</p>
+      <div class="service-price">R$110<small>reais</small></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">👑</div>
+      <h3 class="service-name">Combo Social Completo</h3>
+      <p class="service-desc">Corte social + barba + sobrancelha. O pacote executivo completo.</p>
+      <div class="service-price">R$120<small>reais</small></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">🧔</div>
+      <h3 class="service-name">Aparar a Barba</h3>
+      <p class="service-desc">Modelagem e aparagem rápida para manter o visual sempre alinhado.</p>
+      <div class="service-price">R$30<small>reais</small></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">🔥</div>
+      <h3 class="service-name">Barba com Toalha Quente</h3>
+      <p class="service-desc">Experiência premium com toalha quente para um barbear suave e relaxante.</p>
+      <div class="service-price">R$60<small>reais</small></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">✏️</div>
+      <h3 class="service-name">Barba Desenhada</h3>
+      <p class="service-desc">Design personalizado para dar aquele acabamento único à sua barba.</p>
+      <div class="service-price">R$22<small>reais</small></div>
+    </div>
+    <div class="service-card reveal" style="grid-column: 1 / -1; max-width: 380px; margin: 0 auto; width: 100%;">
+      <div class="service-icon">〰️</div>
+      <h3 class="service-name">Sobrancelha</h3>
+      <p class="service-desc">Alinhamento e modelagem para a sobrancelha perfeita.</p>
+      <div class="service-price">R$10<small>reais</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOURS BAND -->
+<div class="hours-band reveal">
+  <div class="hours-item">
+    <div class="hours-label">Terça – Sexta</div>
+    <div class="hours-time">14:30 – 20:00</div>
+  </div>
+  <div class="hours-item">
+    <div class="hours-label">Sábado</div>
+    <div class="hours-time">9:30–12:30 / 13:00–18:00</div>
+  </div>
+  <div class="hours-item">
+    <div class="hours-label">Dom & Segunda</div>
+    <div class="hours-time">FECHADO</div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section id="contato">
+  <div class="contact-wrap">
+    <div class="contact-info reveal">
+      <h2>FALE COM A GENTE</h2>
+      <p>Tem alguma dúvida ou quer saber mais? Entre em contato — adoramos ouvir nossos clientes.</p>
+      <div class="contact-detail">
+        <span class="contact-detail-icon">📍</span>
+        <div class="contact-detail-text">Rua Luís Góis, 322<br>04043-000, São Paulo – SP</div>
+      </div>
+      <div class="contact-detail">
+        <span class="contact-detail-icon">📸</span>
+        <div class="contact-detail-text"><a href="https://www.instagram.com/perritobarbearia/" target="_blank">@perritobarbearia</a></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" placeholder="Seu nome completo" required />
+        </div>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="seu@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="msg">Mensagem</label>
+          <textarea id="msg" placeholder="Como podemos te ajudar?" required></textarea>
+        </div>
+        <button type="submit" class="form-submit">Enviar Mensagem</button>
+        <div class="form-success" id="formSuccess">✓ Obrigado! Entraremos em contato em breve.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- AGENDAMENTO -->
+<section id="agendamento">
+  <div class="agendamento-wrap">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">Reserve seu horário</p>
+      <h2 class="section-title">AGENDAMENTO</h2>
+    </div>
+    <div class="reveal">
+      <div class="agendamento-form" id="agendamentoForm">
+        <div class="form-group">
+          <label for="ag-nome">Nome</label>
+          <input type="text" id="ag-nome" placeholder="Seu nome completo" required />
+        </div>
+        <div class="form-group">
+          <label for="ag-telefone">Telefone / WhatsApp</label>
+          <input type="tel" id="ag-telefone" placeholder="(11) 99999-9999" required />
+        </div>
+        <div class="form-group full">
+          <label for="ag-servico">Serviço</label>
+          <select id="ag-servico" required>
+            <option value="" disabled selected>Selecione um serviço</option>
+            <option value="Corte de Cabelo - R$60">Corte de Cabelo — R$60</option>
+            <option value="Combo Cabelo + Barba - R$110">Combo Cabelo + Barba — R$110</option>
+            <option value="Combo Social Completo - R$120">Combo Social Completo — R$120</option>
+            <option value="Aparar a Barba - R$30">Aparar a Barba — R$30</option>
+            <option value="Barba com Toalha Quente - R$60">Barba com Toalha Quente — R$60</option>
+            <option value="Barba Desenhada - R$22">Barba Desenhada — R$22</option>
+            <option value="Sobrancelha - R$10">Sobrancelha — R$10</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ag-data">Data</label>
+          <input type="date" id="ag-data" required />
+        </div>
+        <div class="form-group">
+          <label for="ag-horario">Horário</label>
+          <input type="time" id="ag-horario" min="09:30" max="20:00" required />
+        </div>
+        <div class="form-group full">
+          <button type="button" class="form-submit" id="agendamentoBtn" onclick="enviarAgendamento()">Confirmar Agendamento</button>
+        </div>
+        <div class="agendamento-status" id="agendamentoStatus"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">PERRITO BARBEARIA</div>
+  <div class="footer-socials">
+    <a href="https://www.instagram.com/perritobarbearia/" target="_blank" title="Instagram">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+  </div>
+  <p class="footer-copy">© 2025 Perrito Barbearia · São Paulo, SP</p>
+</footer>
+
+<script>
+  // ─── SUPABASE CONFIG ───
+  // ⚠️ Substitua pelos seus valores do painel Supabase (Settings → API)
+  const SUPABASE_URL = 'https://npzrkgdrektwcsuqjwot.supabase.co';       // ex: https://xyzxyz.supabase.co
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenJrZ2RyZWt0d2NzdXFqd290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2Mzk5NzIsImV4cCI6MjA5NTIxNTk3Mn0.fb3JJgXYo5f--Ghci8RVwZDcvIhEC2iieWb7botF2VM';  // ex: eyJhbGciOiJIUzI1NiIsIn...
+
+  // ─── NAVBAR SCROLL ───
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ─── SCROLL REVEAL ───
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ─── CONTACT FORM ───
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('formSuccess').style.display = 'block';
+    this.reset();
+    setTimeout(() => document.getElementById('formSuccess').style.display = 'none', 5000);
+  });
+
+  // ─── DATA MÍNIMA (hoje) ───
+  document.getElementById('ag-data').min = new Date().toISOString().split('T')[0];
+
+  // ─── ENVIAR AGENDAMENTO ───
+  async function enviarAgendamento() {
+    const nome     = document.getElementById('ag-nome').value.trim();
+    const telefone = document.getElementById('ag-telefone').value.trim();
+    const servico  = document.getElementById('ag-servico').value;
+    const data     = document.getElementById('ag-data').value;
+    const horario  = document.getElementById('ag-horario').value;
+    const btn      = document.getElementById('agendamentoBtn');
+
+    if (!nome || !telefone || !servico || !data || !horario) {
+      mostrarStatus('erro', '⚠️ Preencha todos os campos antes de confirmar.');
+      return;
+    }
+
+    // ─── VALIDAR HORÁRIO DE FUNCIONAMENTO ───
+    const diaSemana = new Date(data + 'T12:00:00').getDay();
+    // 0 = domingo, 1 = segunda
+    if (diaSemana === 0 || diaSemana === 1) {
+      mostrarStatus('erro', '❌ Não atendemos aos domingos e segundas-feiras.');
+      return;
+    }
+
+    const [h, m] = horario.split(':').map(Number);
+    const minutos = h * 60 + m; // converter horário em minutos para comparar
+
+    if (diaSemana >= 2 && diaSemana <= 5) {
+      // Terça a Sexta: 14:30 – 20:00
+      const abre = 14 * 60 + 30;
+      const fecha = 20 * 60;
+      if (minutos < abre || minutos >= fecha) {
+        mostrarStatus('erro', '❌ De terça a sexta atendemos das 14:30 às 20:00.');
+        return;
+      }
+    } else if (diaSemana === 6) {
+      // Sábado: 09:30 – 12:30 e 13:00 – 18:00
+      const manha_abre  = 9 * 60 + 30;
+      const manha_fecha = 12 * 60 + 30;
+      const tarde_abre  = 13 * 60;
+      const tarde_fecha = 18 * 60;
+      const noPeriodoManha = minutos >= manha_abre && minutos < manha_fecha;
+      const noPeriodoTarde = minutos >= tarde_abre && minutos < tarde_fecha;
+      if (!noPeriodoManha && !noPeriodoTarde) {
+        mostrarStatus('erro', '❌ No sábado atendemos das 09:30 às 12:30 e das 13:00 às 18:00.');
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    mostrarStatus('carregando', '⏳ Verificando disponibilidade...');
+
+    try {
+      // ─── 1. VERIFICAR SE HORÁRIO JÁ ESTÁ OCUPADO ───
+      const checkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/agendamentos?data=eq.${data}&horario=eq.${horario}&select=id`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        }
+      );
+
+      const existentes = await checkRes.json();
+
+      if (existentes.length > 0) {
+        mostrarStatus('erro', '❌ Esse horário já está reservado. Escolha outro horário ou data.');
+        btn.disabled = false;
+        return;
+      }
+
+      // ─── 2. HORÁRIO LIVRE — SALVAR AGENDAMENTO ───
+      mostrarStatus('carregando', '⏳ Confirmando agendamento...');
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/agendamentos`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ nome, telefone, servico, data, horario })
+      });
+
+      if (res.ok) {
+        mostrarStatus('sucesso', '✓ Agendamento confirmado! Te esperamos na barbearia.');
+        document.getElementById('ag-nome').value = '';
+        document.getElementById('ag-telefone').value = '';
+        document.getElementById('ag-servico').value = '';
+        document.getElementById('ag-data').value = '';
+        document.getElementById('ag-horario').value = '';
+      } else {
+        const err = await res.json();
+        // Captura erro de constraint UNIQUE do banco (camada extra de segurança)
+        if (err.code === '23505') {
+          mostrarStatus('erro', '❌ Esse horário acabou de ser reservado por outra pessoa. Escolha outro.');
+        } else {
+          console.error(err);
+          mostrarStatus('erro', '❌ Erro ao salvar. Verifique as configurações do Supabase.');
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      mostrarStatus('erro', '❌ Erro de conexão. Verifique a URL e a chave do Supabase.');
+    }
+
+    btn.disabled = false;
+  }
+
+  function mostrarStatus(tipo, msg) {
+    const el = document.getElementById('agendamentoStatus');
+    el.className = 'agendamento-status ' + tipo;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
